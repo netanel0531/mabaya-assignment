@@ -8,7 +8,9 @@ An `app` container will be loaded which will handle all the requests (using Spri
 
 ## Usages and Examples ##
 You can query the app by sending requests to localhost/api/v1/{API} as follow:
+
 `GET health`: A simple endpoint to check if the application started successfully.
+
 `POST create_campaign`: Used for creating a campaign with these fields:
 ```json
 {
@@ -18,6 +20,7 @@ You can query the app by sending requests to localhost/api/v1/{API} as follow:
 	"productIdentifierToPromote": [1, 2] // List of the products' id
 }
 ```
+
 `GET serve_add?category=YOUR_CATEGORY`: Get a product to promote according to a category and highest bid in a Campaign,
 or if there is no such product returns any other product with the highest bid in a Campaign.
 
