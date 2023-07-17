@@ -2,7 +2,7 @@
 Repo for my solution for Mabaya home exam
 
 # How to Use #
-You can run the `docker-compose.yml`.
+Please run `mvn clean package` to have the latests JAR in the `/targer`, once this is done you can run the `docker-compose.yml`.
 This will load a PostgreSQL DB with a `product` table containing the values set in the `sql/02_load_data.sql` file.
 An `app` container will be loaded which will handle all the requests (using Spring Boot).
 
