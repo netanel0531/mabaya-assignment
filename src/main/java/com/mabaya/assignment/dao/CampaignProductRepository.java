@@ -5,20 +5,21 @@ import com.mabaya.assignment.model.CampaignProductId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface CampaignProductRepository extends JpaRepository<CampaignProduct, CampaignProductId> {
-    @Query("SELECT cp FROM CampaignProduct cp " +
+    @Query(value = "SELECT * FROM Campaign_Product cp " +
             "JOIN (" +
             "    SELECT MAX(cp1.bid) AS max_bid" +
-            "    FROM CampaignProduct cp1" +
+            "    FROM Campaign_Product cp1" +
             "    WHERE cp1.category = ?1" +
             ") AS maxcp ON cp.bid = maxcp.max_bid " +
-            "WHERE cp.category = ?1")
-    List<CampaignProduct> findByCategoryByMaxBid(String category);
+            "WHERE cp.category = ?1 " +
+            "LIMIT 1", nativeQuery = true)
+    Optional<CampaignProduct> findAnyByCategoryByMaxBid(String category);
 
 
-    @Query("SELECT cp FROM CampaignProduct cp WHERE cp.bid = (SELECT MAX(cp1.bid) FROM CampaignProduct cp1)")
-    List<CampaignProduct> findByMaxBid();
+    @Query(value = "SELECT * FROM Campaign_Product cp WHERE cp.bid = (SELECT MAX(cp1.bid) FROM Campaign_Product cp1) LIMIT 1", nativeQuery = true)
+    Optional<CampaignProduct> findAnyByMaxBid();
 
 }

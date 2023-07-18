@@ -61,17 +61,13 @@ public class SponsoredAdsServiceImpl implements SponsoredAdsService {
         campaignProductRetention(CAMPAIGN_TTL_DAYS);
 
         // Find a product with the highest bid and the given category
-        List<CampaignProduct> campaignProductList = campaignProductRepository.findByCategoryByMaxBid(category);
-        if (campaignProductList.size() < 1) {
-            // If there is no such category get any product with the highest bid.
-            campaignProductList = campaignProductRepository.findByMaxBid();
-            if (campaignProductList.size() < 1) {
-                return null;
-            }
-        }
+        // Or if none found - any higher bid.
+        CampaignProduct c = campaignProductRepository.findAnyByCategoryByMaxBid(category)
+                .orElse(campaignProductRepository.findAnyByMaxBid()
+                        .orElse(null));
 
         // Get the full product details from the Products table and return it.
-        return productRepository.findById(campaignProductList.get(0).getProductId()).get();
+        return (c != null) ?  productRepository.findById(c.getProductId()).orElse(null) :  null;
 
     }
 
