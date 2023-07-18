@@ -30,4 +30,7 @@ services:
     volumes:
       - ./sql/01_create_table.sql:/docker-entrypoint-initdb.d/01_create_table.sql
       - ./sql/02_load_data.sql:/docker-entrypoint-initdb.d/02_load_data.sql
-
+    ports:
+      - 5433:5432
+    expose:
+      - 5433
