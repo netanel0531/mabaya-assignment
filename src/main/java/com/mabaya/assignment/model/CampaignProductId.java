@@ -9,6 +9,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Getter
 public class CampaignProductId implements Serializable {
-    String campaignName;
+    Integer campaignId;
     Integer productId;
 }

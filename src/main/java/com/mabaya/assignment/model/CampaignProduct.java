@@ -18,7 +18,7 @@ import java.io.Serializable;
 @IdClass(CampaignProductId.class)
 public class CampaignProduct implements Serializable {
     @Id
-    String campaignName;
+    Integer campaignId;
     @Id
     Integer productId;
 

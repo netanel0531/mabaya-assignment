@@ -34,26 +34,21 @@ public class SponsoredAdsServiceImpl implements SponsoredAdsService {
     }
     @Override
     public Campaign createCampaign(Campaign campaign) {
-        // If the campaign already exists we will add all the new products and update the start date and the bid
-        String id = campaign.getName();
-        if (campaignRepository.existsById(id)) {
-            Campaign existingCampaign = campaignRepository.findById(id).get();
-            existingCampaign.getProductIdentifierToPromote().addAll(campaign.getProductIdentifierToPromote());
-            existingCampaign.setStartDate(campaign.getStartDate());
-            existingCampaign.setBid(campaign.getBid());
-        }
 
         //Save the new campaign and return it if succeed
-        Campaign newCampaign = new Campaign(id, campaign.getBid(), campaign.getStartDate(),
-                 campaign.getProductIdentifierToPromote());
+        Campaign newCampaign = Campaign.builder().bid(campaign.getBid())
+                .name(campaign.getName()).startDate(campaign.getStartDate())
+                .productIdentifierToPromote(campaign.getProductIdentifierToPromote())
+                .build();
+
         campaignRepository.saveAndFlush(newCampaign);
 
         // Update the Campaign-Product table.
-        for (int productId : campaign.getProductIdentifierToPromote()) {
-            productRepository.findById(productId).ifPresent(product ->
-                    campaignProductRepository.save(new CampaignProduct(campaign.getName(), product.getId(),
-                                                    campaign.getBid(), product.getCategory())));
-        }
+        campaign.getProductIdentifierToPromote().forEach(productId ->
+                productRepository.findById(productId).ifPresent(product ->
+                campaignProductRepository.save(new CampaignProduct(newCampaign.getId(), product.getId(),
+                        campaign.getBid(), product.getCategory()))));
+
         campaignProductRepository.flush();
 
         return newCampaign;
@@ -81,20 +76,20 @@ public class SponsoredAdsServiceImpl implements SponsoredAdsService {
     }
 
     /**
-     * Delete from the Campaing_Product table all the campaign that are out-of-date according to the number of day
+     * Delete from the Campaign_Product table all the campaign that are out-of-date according to the number of day
      * past their start date.
      * @param days after the start date to be considered deprecated (Defined in the application.properties).
      */
     private void campaignProductRetention(int days) {
         // Get all the deprecated campaigns' title.
-        List<String> oldCampaignsIds = campaignRepository.findAll().stream().filter(
+        List<Integer> oldCampaignsIds = campaignRepository.findAll().stream().filter(
                 campaign -> campaign.getStartDate()
                         .before(new Date(System.currentTimeMillis() - TimeUnit.DAYS.toMillis(days)))
-                ).map(Campaign::getName).toList();
+                ).map(Campaign::getId).toList();
 
         // Delete the deprecated associations in the Campaign-Product table
         campaignProductRepository.deleteAll(campaignProductRepository.findAll().stream().filter(
-                        campaignProduct -> oldCampaignsIds.contains(campaignProduct.getCampaignName()))
+                        campaignProduct -> oldCampaignsIds.contains(campaignProduct.getCampaignId()))
                         .collect(Collectors.toList()));
     }
 }
